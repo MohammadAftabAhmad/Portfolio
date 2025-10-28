@@ -18,7 +18,7 @@ const scocials = [
   {
     Icon: FaInstagram,
     label: "Instagram",
-    herf: "https://github.com/MohammadAftabAhmad",
+    herf: "https://github.com/MohammadAftabAhmad ",
   },
   // {Icon: FaxLinkedin, label:"LinkedIn", herf: " "};
 ];
