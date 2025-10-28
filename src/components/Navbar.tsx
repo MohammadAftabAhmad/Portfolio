@@ -30,6 +30,36 @@ function Navbar() {
     };
   }, []);
 
+  useEffect(
+    () => {
+      const handleScroll = () => {
+        if (forceVisible) {
+          setVisible(true);
+          return;
+        }
+        const currentScrollY = window.scrollY;
+        if (currentScrollY > lastScrollY.current) {
+          setVisible(false);
+        } else {
+          setVisible(true);
+
+          if (timerId.current) clearTimeout(timerId.current);
+          timerId.current = setTimeout(() => {
+            setVisible(false);
+          }, 3000);
+        }
+        lastScrollY.current = currentScrollY;
+      };
+      window.addEventListener("scrol", handleScroll, { passive: true });
+
+      return () => {
+        window.removeEventListener("scroll", handleScroll);
+        if (timerId.current) clearTimeout(timerId.current);
+      };
+    },
+    { forceVisible }
+  );
+
   return (
     <>
       <nav
@@ -68,7 +98,7 @@ function Navbar() {
         <div className="hidden lg:block">
           <a
             href=""
-            className="bg-gradient-to-r from-pink-500 to to-blue-500 text-white px-5 py-2 rounded-full font-medium shadow-lg hover:opacity-90 transition-opacity duration-300"
+            className="bg-gradient-to-r from-[#a3b8d9] via-[#6c8bbd] to-[#a3b8d9] px-5 py-2 rounded-full font-medium shadow-lg hover:opacity-90 transition-opacity duration-300"
           >
             Reach Out
           </a>

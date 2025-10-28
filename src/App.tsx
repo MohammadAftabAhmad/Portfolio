@@ -1,13 +1,15 @@
 import CustomCursor from "./components/CustomCursor";
 import Navbar from "./components/Navbar";
 import Particlesbackground from "./components/Particlesbackground";
+import Hero from "./pages/HomePage/sections/Hero";
 
 function App() {
   return (
     <>
       <Navbar />
-      <Particlesbackground />
+      {/* <Particlesbackground /> */}
       <CustomCursor />
+      <Hero />
     </>
   );
 }

@@ -50,7 +50,7 @@ function OverlayMenu({
                   <a
                     href={`#${item.toLocaleLowerCase()}`}
                     onClick={onClose}
-                    className="text-4xl text-white font-semibold hover:text-pink-400 transition-colors duration-300"
+                    className="text-4xl text-white font-semibold hover:text-blue-200 transition-colors duration-300"
                   >
                     {item}
                   </a>
