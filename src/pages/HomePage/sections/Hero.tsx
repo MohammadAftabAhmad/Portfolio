@@ -1,6 +1,38 @@
 import { useEffect, useMemo, useState } from "react";
 import Particlesbackground from "../../../components/Particlesbackground";
 import { motion } from "framer-motion";
+import { FaGithub, FaInstagram, FaLinkedin } from "react-icons/fa";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+
+const scocials = [
+  {
+    Icon: FaLinkedin,
+    label: "LinkedIn",
+    herf: "https://www.linkedin.com/in/mohammadaftabahmad/",
+  },
+  {
+    Icon: FaGithub,
+    label: "Github",
+    herf: "https://github.com/MohammadAftabAhmad",
+  },
+  {
+    Icon: FaInstagram,
+    label: "Instagram",
+    herf: "https://github.com/MohammadAftabAhmad",
+  },
+  // {Icon: FaxLinkedin, label:"LinkedIn", herf: " "};
+];
+const glowVarients = {
+  initial: { scale: 1, y: 0, filter: "drop-shadow(0 0 0 rgba(0,0,0,0))" },
+  hover: {
+    scale: 1.2,
+    y: -3,
+    filter:
+      "drop-shadow(0 0 8px rgba(13,88,204,0.9)) drop-shadow(0 0 18px rgba(16,185,129,0.8))",
+    transition: { type: "spring", stiffness: 300, damping: 15 },
+  },
+  tap: { scale: 0.95, y: 0, transition: { duration: 0.08 } },
+};
 
 function Hero() {
   const roles = useMemo(
@@ -121,8 +153,40 @@ function Hero() {
                   MY Resume
                 </a>
               </motion.div>
+              <div className="mt-10 flex gap-5 text-2xl md:text-3xl ">
+                {scocials.map(({ Icon, label, herf }) => (
+                  <motion.a
+                    href={herf}
+                    key={label}
+                    target="_blank"
+                    aria-label={label}
+                    rel="noopener noreferrer"
+                    variants={glowVarients}
+                    initial="initial"
+                    whileHover="hover"
+                    whileTap="tap"
+                    className="text-gray-300 hover:text-blue-300"
+                  >
+                    <Icon />
+                  </motion.a>
+                ))}
+              </div>
             </div>
           </div>
+
+          <motion.div
+            className=" hidden lg:block"
+            initial={{ opacity: 0, y: 0, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.8 }}
+          >
+            <DotLottieReact
+              src="https://lottie.host/01145810-0ce6-48cb-af6f-b006599fc3c5/O4mdg8UU7F.lottie"
+              loop
+              autoplay
+              className="absolute mt-[300px] w-[700px] h-[750px] -translate-y-1/2 object-contain select-none pointer-events-none"
+            />
+          </motion.div>
         </div>
       </section>
     </>
