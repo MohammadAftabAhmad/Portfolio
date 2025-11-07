@@ -37,10 +37,10 @@ const glowVarients = {
 function Hero() {
   const roles = useMemo(
     () => [
-      "Web Developer",
+      // "Web Developer",
       "Frontend Developer",
-      "ReactJs Developer",
-      "UI/UX Developer",
+      // "ReactJs Developer",
+      // "UI/UX Developer",
     ],
     []
   );

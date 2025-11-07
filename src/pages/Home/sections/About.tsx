@@ -41,13 +41,13 @@ function About() {
               <img
                 src={img}
                 alt="profile"
-                className=" absolute inset-0   rounded-xl  "
+                className=" absolute inset-0   rounded-xl bg-slate-400  "
               />
             </motion.div>
             <div className="flex-1 flex flex-col  text-center md:text-left lg:text-left ">
               <h2
                 className="text-4xl sm:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent
-              bg-gradient-to-r from-gray-700 via-gray-500 to-gray-700 mt-0 lg:mt-10 "
+              bg-gradient-to-r from-gray-700 via-gray-500 to-gray-700 mt-0 "
               >
                 Mohammad Aftab Ahmad
               </h2>
@@ -218,7 +218,7 @@ function About() {
                 </svg>
                 <FaGithub className="w-[30px] h-[30px] hover:scale-110 duration-300 " />
               </div>
-              <div className=" mt-3 flex flex-col-2  sm:flow-row gap-3  ">
+              <div className=" mt-5 flex flex-col-2  sm:flow-row gap-3  ">
                 <a
                   href="#projects"
                   className="inline-flex items-center justify-center rounded-lg bg-white text-black font-semibold px-5 py-3 hover:bg-gray-200 transition"
