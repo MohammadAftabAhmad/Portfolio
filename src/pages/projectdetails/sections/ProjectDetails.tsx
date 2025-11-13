@@ -1,205 +1,181 @@
 import { useEffect, useRef, useState } from "react";
-import { FaExternalLinkAlt, FaCode } from "react-icons/fa";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../../redux/store";
+import { useNavigate } from "react-router-dom";
 import { IoArrowBackCircleOutline } from "react-icons/io5";
+import { FaExternalLinkAlt } from "react-icons/fa";
 
-// ✅ Import your images here
-import img1 from "../../../assets/images/project/kf1.png";
-import img2 from "../../../assets/images/project/kf2.png";
-import img3 from "../../../assets/images/project/kf3.png";
-import img4 from "../../../assets/images/project/kf4.png";
-import img5 from "../../../assets/images/project/kf5.png";
-import img6 from "../../../assets/images/project/kf6.png";
-import img7 from "../../../assets/images/project/kf7.png";
-import img8 from "../../../assets/images/project/kf8.png";
-import img9 from "../../../assets/images/project/kf9.png";
-import img10 from "../../../assets/images/project/kf10.png";
+const TRANSITION_MS = 700;
 
-const ProjectDetails = () => {
-  const images = [img1, img2, img3, img4, img5, img6, img7, img8, img9, img10];
-  const scrollRef = useRef<HTMLDivElement | null>(null);
+const ProjectDetailsPage = () => {
+  const { selectedProject } = useSelector((state: RootState) => state.project);
+  const navigate = useNavigate();
+
+  // 1 slide for small screens, 2 for md and up
+  const [visibleCount, setVisibleCount] = useState<number>(
+    window.innerWidth >= 768 ? 2 : 1
+  );
+
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(true);
+  const transitionTimeoutRef = useRef<number | null>(null);
 
-  // 🔁 Duplicate first few images to create seamless loop
-  const loopedImages = [...images, ...images.slice(0, 2)];
+  // Responsive slide count
+  useEffect(() => {
+    const handleResize = () => {
+      const count = window.innerWidth >= 768 ? 2 : 1;
+      setVisibleCount(count);
+      setIsAnimating(false);
+      setCurrentIndex(0);
+      window.setTimeout(() => setIsAnimating(true), 20);
+    };
 
-  // Auto-scroll smoothly
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  if (!selectedProject) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-black text-white">
+        <p>No project selected.</p>
+        <button
+          onClick={() => navigate("/")}
+          className="mt-4 px-5 py-2 bg-[#95c6dd] text-black rounded-md font-semibold"
+        >
+          Go Back
+        </button>
+      </div>
+    );
+  }
+
+  const images = selectedProject.images || [];
+  const len = images.length;
+  const loopedImages = [...images, ...images.slice(0, visibleCount)];
+
+  // Auto-slide
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => prev + 1);
     }, 3000);
-
     return () => clearInterval(interval);
   }, []);
 
-  // Scroll effect
+  // Reset loop transition
   useEffect(() => {
-    if (!scrollRef.current) return;
+    if (currentIndex >= len) {
+      if (transitionTimeoutRef.current)
+        clearTimeout(transitionTimeoutRef.current);
 
-    // Find one slide width (including gap)
-    const slide = scrollRef.current.querySelector("div > div");
-    if (!slide) return;
-
-    const slideWidth = slide.clientWidth + 24; // 24px ≈ gap-6 in Tailwind
-    scrollRef.current.scrollTo({
-      left: slideWidth * currentIndex,
-      behavior: "smooth",
-    });
-
-    // Reset seamlessly when reaching duplicate end
-    if (currentIndex >= images.length) {
-      setTimeout(() => {
-        if (scrollRef.current) {
-          scrollRef.current.scrollTo({
-            left: 0,
-            behavior: "instant" as ScrollBehavior,
-          });
-        }
+      transitionTimeoutRef.current = window.setTimeout(() => {
+        setIsAnimating(false);
         setCurrentIndex(0);
-      }, 500);
+        window.setTimeout(() => setIsAnimating(true), 20);
+      }, TRANSITION_MS);
     }
-  }, [currentIndex, images.length]);
+    return () => {
+      if (transitionTimeoutRef.current)
+        clearTimeout(transitionTimeoutRef.current);
+    };
+  }, [currentIndex, len]);
 
-  // Manual pagination click
-  const handleDotClick = (index: number) => {
-    setCurrentIndex(index);
-  };
+  const translatePercent = (currentIndex * 100) / visibleCount;
 
   return (
-    <>
-      <div className=" bg-black pt-20 text-white">
-        <IoArrowBackCircleOutline size={30} />
+    <div className="bg-black text-white min-h-screen px-6 py-16 flex flex-col items-center">
+      {/* Back Button */}
+      <div className="w-full max-w-6xl mb-6">
+        <IoArrowBackCircleOutline
+          size={36}
+          className="text-[#95c6dd] cursor-pointer"
+          onClick={() => navigate(-1)}
+        />
       </div>
-      <div className="bg-black text-white min-h-screen flex flex-col items-center justify-center px-6 ">
-        {/* Title */}
-        <h1 className="text-4xl font-bold mb-8">K-FOODIES</h1>
 
-        {/* Image Carousel */}
+      {/* Title */}
+      <h1 className="text-4xl font-bold mb-10">{selectedProject.title}</h1>
+
+      {/* Carousel */}
+      <div className="w-full max-w-[83rem] overflow-hidden">
         <div
-          ref={scrollRef}
-          className="flex overflow-x-hidden scroll-smooth gap-6 w-full max-w-[83rem] rounded-xl justify-center"
+          className="flex"
+          style={{
+            transform: `translateX(-${translatePercent}%)`,
+            transition: isAnimating
+              ? `transform ${TRANSITION_MS}ms ease-in-out`
+              : "none",
+          }}
         >
           {loopedImages.map((img, i) => (
             <div
               key={i}
-              className="flex-shrink-0 w-[28rem] sm:w-[36rem] lg:w-[40rem] h-[18rem] sm:h-[22rem] rounded-xl overflow-hidden border border-[#95c6dd] shadow-xl"
+              style={{ flex: `0 0 ${100 / visibleCount}%` }}
+              className="px-3 box-border"
             >
-              <img
-                src={img}
-                alt={`Slide ${i}`}
-                className="w-full h-full object-cover"
-              />
+              <div className="w-full h-[18rem] sm:h-[22rem] rounded-xl overflow-hidden border border-[#95c6dd] shadow-xl">
+                <img
+                  src={img}
+                  alt={`Slide ${i}`}
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
           ))}
         </div>
+      </div>
 
-        {/* Pagination Dots */}
-        <div className="flex mt-6 gap-3">
-          {images.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => handleDotClick(index)}
-              className={`w-3 h-3 rounded-full border border-[#95c6dd] transition-all duration-300 ${
-                index === currentIndex % images.length
-                  ? "bg-[#95c6dd] scale-110"
-                  : "bg-transparent"
-              }`}
-            ></button>
-          ))}
-        </div>
+      {/* Pagination Dots */}
+      <div className="flex mt-6 gap-3">
+        {images.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentIndex(index)}
+            className={`w-3 h-3 rounded-full border border-[#95c6dd] transition-all duration-300 ${
+              index === currentIndex % len
+                ? "bg-[#95c6dd] scale-110"
+                : "bg-transparent"
+            }`}
+          ></button>
+        ))}
+      </div>
 
-        {/* Description */}
+      {/* Description Section */}
+      <div className="text-gray-200 p-6 sm:p-10 rounded-2xl shadow-lg max-w-6xl mt-10">
+        <p className="text-lg mb-6 leading-relaxed">
+          <span className="font-semibold text-white">Description: </span>
+          {selectedProject.description}{" "}
+          <span className="text-[#95c6dd] font-medium">
+            {selectedProject.techStack?.join(", ")}
+          </span>
+        </p>
 
-        <div className=" text-gray-200 p-6   sm:p-10 rounded-2xl shadow-lg max-w-7xl mx-auto">
-          {/* Description */}
-          <p className="text-lg mb-6">
-            <span className="font-semibold text-white">Description: </span>
-            KFoodies is a modern,responsive food blogging website that shares
-            inspiring food stories, recipes, and culinary experiences from
-            around the world.Along with insightful blogs and stunning visuals,
-            KFoodies proudly hosts its annual Tabemono Food Fest is a
-            celebration of global flavors and food culture that brings food
-            enthusiasts together every year.{" "}
-            <span className="text-[#95c6dd] font-medium">
-              MongoDB, Express, React & Node.js (MERN)
-            </span>
-          </p>
-
-          {/* Features Section */}
+        {selectedProject.features && selectedProject.features.length > 0 && (
           <div className="mb-10">
             <h2 className="text-2xl font-semibold text-white mb-4">
               Features:
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10">
-              <ul className="space-y-2 list-disc list-inside">
-                <li>User registration and login</li>
-                <li>Add Favorites</li>
-                <li>Leave a Reviews</li>
-                <li>Password Update</li>
-                <li>Watch the trailer on YouTube</li>
-                <li>Skeleton loading effect</li>
-                <li>DarkMode</li>
-              </ul>
-              <ul className="space-y-2 list-disc list-inside">
-                <li>Authentication using JWT Tokens</li>
-                <li>Delete Favorites</li>
-                <li>Delete Reviews</li>
-                <li>Search Live</li>
-                <li>404 Page and many more</li>
-                <li>DarkMode</li>
-                <li>Responsive Design</li>
-              </ul>
-            </div>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 space-y-2 list-disc list-inside">
+              {selectedProject.features.map((feature, idx) => (
+                <li key={idx}>{feature}</li>
+              ))}
+            </ul>
           </div>
+        )}
 
-          {/* Tools & Technologies Section */}
-          <div className="mb-10">
-            <h2 className="text-2xl font-semibold text-white mb-4">
-              Tools & Technologies:
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10">
-              <ul className="space-y-2 list-disc list-inside">
-                <li>React</li>
-                <li>React Router Dom</li>
-                <li>Material UI</li>
-                <li>Formik</li>
-                <li>React Toastify</li>
-                <li>NodeJS</li>
-                <li>Mongoose</li>
-                <li>Cookie Parser</li>
-                <li>Dotenv</li>
-                <li>Nodemon</li>
-                <li>TMDB API</li>
-              </ul>
-              <ul className="space-y-2 list-disc list-inside">
-                <li>React Hooks</li>
-                <li>Axios</li>
-                <li>CK Editor</li>
-                <li>React Redux</li>
-                <li>Swiper</li>
-                <li>ExpressJS</li>
-                <li>Json Web Token</li>
-                <li>Cors</li>
-                <li>Express Validator</li>
-                <li>MongoDB</li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Buttons */}
-          <div className="flex flex-wrap gap-4">
+        {selectedProject.link && (
+          <div className="flex justify-center">
             <a
-              href="#"
+              href={selectedProject.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-[#95c6dd] text-black   px-6 py-3 rounded-md font-semibold flex items-center gap-2 transition-all"
+              className="bg-[#95c6dd] text-black px-6 py-3 rounded-md font-semibold flex items-center gap-2 transition-all hover:opacity-90"
             >
-              VISIT NOW <FaExternalLinkAlt />
+              Visit Website <FaExternalLinkAlt />
             </a>
           </div>
-        </div>
+        )}
       </div>
-    </>
+    </div>
   );
 };
 
-export default ProjectDetails;
+export default ProjectDetailsPage;
