@@ -1,18 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import OverlayMenu from "./OverlayMenu";
-
 import { FiMenu } from "react-icons/fi";
 
 function Navbar() {
-  const [OpenMenu, setOpenMenu] = useState(false);
+  const [openMenu, setOpenMenu] = useState(false);
   const [visible, setVisible] = useState(true);
   const [forceVisible, setForceVisible] = useState(false);
 
   const lastScrollY = useRef(0);
-  const timerId = useRef(null);
+  const timerId = useRef<number | null>(null);
 
   useEffect(() => {
-    const homeSection = document.querySelector("#home");
+    const homeSection = document.querySelector<HTMLElement>("#home");
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -22,43 +21,45 @@ function Navbar() {
           setForceVisible(false);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
+
     if (homeSection) observer.observe(homeSection);
     return () => {
       if (homeSection) observer.unobserve(homeSection);
     };
   }, []);
 
-  useEffect(
-    () => {
-      const handleScroll = () => {
-        if (forceVisible) {
-          setVisible(true);
-          return;
-        }
-        const currentScrollY = window.scrollY;
-        if (currentScrollY > lastScrollY.current) {
-          setVisible(false);
-        } else {
-          setVisible(true);
+  useEffect(() => {
+    const handleScroll = () => {
+      if (forceVisible) {
+        setVisible(true);
+        return;
+      }
 
-          if (timerId.current) clearTimeout(timerId.current);
-          timerId.current = setTimeout(() => {
-            setVisible(false);
-          }, 3000);
-        }
-        lastScrollY.current = currentScrollY;
-      };
-      window.addEventListener("scrol", handleScroll, { passive: true });
+      const currentScrollY = window.scrollY;
 
-      return () => {
-        window.removeEventListener("scroll", handleScroll);
+      if (currentScrollY > lastScrollY.current) {
+        setVisible(false);
+      } else {
+        setVisible(true);
+
         if (timerId.current) clearTimeout(timerId.current);
-      };
-    },
-    { forceVisible }
-  );
+        timerId.current = window.setTimeout(() => {
+          setVisible(false);
+        }, 3000);
+      }
+
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (timerId.current) clearTimeout(timerId.current);
+    };
+  }, [forceVisible]);
 
   return (
     <>
@@ -67,7 +68,7 @@ function Navbar() {
           visible ? "translate-y-0" : "-translate-y-full"
         }`}
       >
-        <div className="flex  items-center space-x-2">
+        <div className="flex items-center space-x-2">
           <svg
             width="30"
             height="30"
@@ -78,13 +79,14 @@ function Navbar() {
             <path
               d="M314.216 201.847V347.777L161.817 207.4M314.216 201.847L282.354 201.933M314.216 201.847L337.198 201.933L380.317 169.456H314.216M161.817 207.4L117.361 169.307L156.817 169.456M161.817 207.4L64.8175 299.812H19.877L136.799 187.503M282.354 201.933L210.163 201.47L282.354 269.433V201.933ZM314.216 169.456H282.354M314.216 169.456L315.452 18.7788L156.817 169.456M156.817 169.456H199.817M199.817 169.456L282.354 94.8466V169.456M199.817 169.456H282.354"
               stroke="#DFDFDF"
-              stroke-width="16"
+              strokeWidth="16"
             />
           </svg>
 
-          <div className="text-2xl font-bold text-white  hidden sm:block">
+          <div className="text-2xl font-bold text-white hidden sm:block">
             Aftab
           </div>
+
           <div className="block lg:absolute lg:left-1/2 lg:transform lg:-translate-x-1/2">
             <button
               onClick={() => setOpenMenu(true)}
@@ -95,16 +97,18 @@ function Navbar() {
             </button>
           </div>
         </div>
+
         <div className="hidden lg:block">
           <a
-            href=""
+            href="#contact"
             className="bg-gradient-to-r from-[#a3b8d9] via-[#6c8bbd] to-[#a3b8d9] px-5 py-2 rounded-full font-medium shadow-lg hover:opacity-90 transition-opacity duration-300"
           >
             Reach Out
           </a>
         </div>
       </nav>
-      <OverlayMenu isOpen={OpenMenu} onClose={() => setOpenMenu(false)} />
+
+      <OverlayMenu isOpen={openMenu} onClose={() => setOpenMenu(false)} />
     </>
   );
 }

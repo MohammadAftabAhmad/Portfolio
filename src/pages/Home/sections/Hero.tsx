@@ -22,7 +22,7 @@ const scocials = [
   },
   // {Icon: FaxLinkedin, label:"LinkedIn", herf: " "};
 ];
-const glowVarients = {
+const glowVarients: any = {
   initial: { scale: 1, y: 0, filter: "drop-shadow(0 0 0 rgba(0,0,0,0))" },
   hover: {
     scale: 1.2,
@@ -42,7 +42,7 @@ function Hero() {
       // "ReactJs Developer",
       // "UI/UX Developer",
     ],
-    []
+    [],
   );
 
   const [index, setIndex] = useState(0);
@@ -62,7 +62,7 @@ function Hero() {
           setIndex((p) => (p + 1) % roles.length);
         }
       },
-      deleting ? 40 : 60
+      deleting ? 40 : 60,
     );
     return () => clearTimeout(timeout);
   }, [subIndex, index, deleting, roles]);
@@ -181,7 +181,7 @@ function Hero() {
             transition={{ duration: 0.8 }}
           >
             <DotLottieReact
-              src="https://lottie.host/01145810-0ce6-48cb-af6f-b006599fc3c5/O4mdg8UU7F.lottie"
+              src="https://lottie.host/9711d40a-0730-4062-ad62-e473180f7bc8/fK9BpUCuHz.lottie"
               loop
               autoplay
               className="absolute mt-[300px] w-[700px] h-[750px] -translate-y-1/2 object-contain select-none pointer-events-none"
